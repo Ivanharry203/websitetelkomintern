@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard UNTIDAR x Telkom Akses</title>
+
+  <!-- Font & Icon -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ========== RESET & BASE ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ========== HEADER ========== */
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      padding: 30px;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+    }
+
+    header img {
+      height: 70px;
+      transition: transform 0.3s ease;
+    }
+
+    header img:hover {
+      transform: scale(1.05);
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      padding: 0 20px 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .title-section {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    .title-section h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    .title-section p {
+      font-size: 1.1rem;
+      color: #7f8c8d;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+      width: 100%;
+    }
+
+    .card {
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      padding: 25px 20px;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      border-left: 4px solid #3498db;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card h2 {
+      font-size: 1.3em;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .card p {
+      font-size: 0.95em;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .card i {
+      color: #e74c3c;
+      font-size: 1.2em;
+    }
+
+    .card-description {
+      font-size: 0.85em;
+      color: #7f8c8d;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+
+    .card-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8em;
+      color: #95a5a6;
+      padding-top: 15px;
+      border-top: 1px solid #ecf0f1;
+    }
+
+    .status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: 500;
+    }
+
+    .status.active {
+      background: rgba(46, 204, 113, 0.15);
+      color: #27ae60;
+    }
+
+    footer {
+      margin-top: 50px;
+      color: #7f8c8d;
+      font-size: 0.85em;
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #ecf0f1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 20px;
+      }
+      
+      .title-section h1 {
+        font-size: 1.8rem;
+      }
+      
+      .cards-container {
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo/untidar.png" alt="Logo UNTIDAR">
+    <img src="logo/telses.png" alt="Logo Telkom Akses">
+  </header>
+
+  <main>
+    <div class="title-section">
+      <h1>Web Tools </h1>
+      <p>Divisi SDI dan Warehouse</p>
+    </div>
+    
+    <div class="cards-container">
+      <div class="card" onclick="window.location.href='https://ivanharry203.github.io/telkomintern/screen.html'">
+        <h2>Web screenshot</h2>
+        <p><i class="fa-solid fa-camera"></i> for Mas Agus</p>
+        <div class="card-description">
+          Tool untuk mengambil screenshot halaman spreadsheet
+        </div>
+        <div class="card-footer">
+          <span class="status active">Active</span>
+        </div>
+      </div>
+
+      <div class="card" onclick="window.location.href='https://ivanharry203.github.io/websiteivan/'">
+        <h2>Cetak Dokumen Fulfillment</h2>
+        <p><i class="fa-solid fa-file-lines"></i> for Mas Hendra</p>
+        <div class="card-description">
+          Sistem pencetakan dokumen docx
+        </div>
+        <div class="card-footer">
+          <span class="status active">Active</span>
+        </div>
+      </div>
+
+      <div class="card" onclick="window.location.href='mark_peta.html'">
+        <h2>Mark Peta</h2>
+        <p><i class="fa-solid fa-location-dot"></i> for Mas Hidan</p>
+        <div class="card-description">
+          Aplikasi untuk menandai lokasi pada peta digital acuan data koordinat.
+        </div>
+        <div class="card-footer">
+          <span class="status active">Active</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; Magang Industri 2025 UNTIDAR
+  </footer>
+</body>
+</html>
