@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Peta Otomatis dari Spreadsheet (Tampilan Satelit + Detail Lokasi Lengkap)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="5713.css">
+</head>
+<body>
+  <div class="search-container" id="search-container"></div>
+  
+  <div class="info-panel">
+    <h3>Peta Otomatis</h3>
+    <p>Data diperbarui otomatis dari Google Spreadsheet</p>
+    <p class="last-update" id="last-update">Terakhir diperbarui: -</p>
+    <p>Total Lokasi: <span id="location-count">0</span></p>
+  </div>
+  
+  <div class="legend">
+    <h4>Keterangan Marker</h4>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #3388ff;"></div>
+      <span>Lokasi LOP</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #ff3333;"></div>
+      <span>Lokasi Penting</span>
+    </div>
+  </div>
+  
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+  <script>
+    // Inisialisasi peta
+    var map = L.map('map').setView([-7.4046, 110.2178], 15);
+    
+    // Layer peta dasar
+    const esriSatelite = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 20,
+        attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+      }
+    );
+
+    const esriLabels = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 20,
+        attribution: 'Labels © Esri'
+      }
+    );
+
+    const osmLabels = L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        opacity: 0.4,
+        attribution: '&copy; OpenStreetMap contributors'
+      }
+    );
+
+    const osmStandard = L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }
+    );
+
+    // Tambahkan layer default
+    esriSatelite.addTo(map);
+    esriLabels.addTo(map);
+
+    // Kontrol layer
+    const baseLayers = {
+      "Satelit (Esri)": esriSatelite,
+      "OpenStreetMap": osmStandard
+    };
+
+    const overlayLayers = {
+      "Label Esri": esriLabels,
+      "Label OSM": osmLabels
+    };
+
+    L.control.layers(baseLayers, overlayLayers).addTo(map);
+
+    // Kontrol pencarian
+    L.Control.geocoder({
+      defaultMarkGeocode: false,
+      placeholder: "Cari lokasi...",
+      errorMessage: "Lokasi tidak ditemukan."
+    })
+    .on('markgeocode', function(e) {
+      const bbox = e.geocode.bbox;
+      const poly = L.polygon([
+        bbox.getSouthEast(),
+        bbox.getNorthEast(),
+        bbox.getNorthWest(),
+        bbox.getSouthWest()
+      ]);
+      map.fitBounds(poly.getBounds());
+      
+      // Tambahkan marker untuk lokasi yang ditemukan
+      L.marker(e.geocode.center)
+        .addTo(map)
+        .bindPopup(`<b>${e.geocode.name}</b><br>Koordinat: ${e.geocode.center.lat.toFixed(6)}, ${e.geocode.center.lng.toFixed(6)}`)
+        .openPopup();
+    })
+    .addTo(map);
+
+    
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQJF-C5HaUynt5YCPnw9x-FSMv5AEWzRnbEsv1_Qfwq6HCvV74wdHPATrO-GfnaZQ_XyleLSnll4DKs/pub?output=csv";
+
+    
+    const markerGroup = L.layerGroup().addTo(map);
+    
+    
+    const locationDetailsCache = {};
+
+    
+    async function getLocationDetails(lat, lng) {
+      const cacheKey = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+      
+    
+      if (locationDetailsCache[cacheKey]) {
+        return locationDetailsCache[cacheKey];
+      }
+      
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+        const data = await response.json();
+        
+        if (data && data.address) {
+          const address = data.address;
+          
+          const locationDetails = {
+            dusun: address.hamlet || address.village || address.suburb || "-",
+            kecamatan: address.village || address.town || address.city_district || "-",
+            kabupaten: address.city || address.municipality || address.county || "-",
+            provinsi: address.state || address.region || "-",
+            negara: address.country || "-",
+            kodePos: address.postcode || "-",
+            namaJalan: address.road || "-",
+            nomorRumah: address.house_number || "-"
+          };
+          
+          locationDetailsCache[cacheKey] = locationDetails;
+          
+          return locationDetails;
+        }
+      } catch (error) {
+        console.error("Error mendapatkan detail lokasi:", error);
+      }
+      
+      return null;
+    }
+
+    
+    async function createPopupContent(nama, lat, lng, ket, tipe) {
+      let popupContent = `
+        <div style="min-width: 250px;">
+          <h3 style="margin: 0 0 10px 0;">${nama}</h3>
+          <p><strong>Keterangan:</strong> ${ket}</p>
+          <p><strong>Koordinat:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+          <p><strong>Tipe:</strong> ${tipe}</p>
+          <div class="location-details">
+            <h4>Detail Lokasi</h4>
+            <div class="loading"></div> Memuat detail lokasi...
+          </div>
+          <button onclick="zoomToLocation(${lat}, ${lng})" style="margin-top: 10px; padding: 5px 10px; background: #3388ff; color: white; border: none; border-radius: 3px; cursor: pointer;">Zoom ke Lokasi</button>
+        </div>
+      `;
+      
+      
+      const locationDetails = await getLocationDetails(lat, lng);
+      
+      
+      if (locationDetails) {
+        popupContent = `
+          <div style="min-width: 250px;">
+            <h3 style="margin: 0 0 10px 0;">${nama}</h3>
+            <p><strong>Keterangan:</strong> ${ket}</p>
+            <p><strong>Koordinat:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+            <p><strong>Tipe:</strong> ${tipe}</p>
+            <div class="location-details">
+              <h4>Detail Lokasi</h4>
+              <div class="location-detail-item">
+                <span class="detail-label">Desa:</span> ${locationDetails.dusun}
+              </div>
+              <div class="location-detail-item">
+                <span class="detail-label">Kecamatan:</span> ${locationDetails.kecamatan}
+              </div>
+              <div class="location-detail-item">
+                <span class="detail-label">Kabupaten:</span> ${locationDetails.kabupaten}
+              </div>
+              <div class="location-detail-item">
+                <span class="detail-label">Provinsi:</span> ${locationDetails.provinsi}
+              </div>
+              <div class="location-detail-item">
+                <span class="detail-label">Negara:</span> ${locationDetails.negara}
+              </div>
+              ${locationDetails.kodePos !== "-" ? `
+              <div class="location-detail-item">
+                <span class="detail-label">Kode Pos:</span> ${locationDetails.kodePos}
+              </div>
+              ` : ""}
+              ${locationDetails.namaJalan !== "-" ? `
+              <div class="location-detail-item">
+                <span class="detail-label">Jalan:</span> ${locationDetails.namaJalan} ${locationDetails.nomorRumah !== "-" ? locationDetails.nomorRumah : ""}
+              </div>
+              ` : ""}
+            </div>
+            <button onclick="zoomToLocation(${lat}, ${lng})" style="margin-top: 10px; padding: 5px 10px; background: #3388ff; color: white; border: none; border-radius: 3px; cursor: pointer;">Zoom ke Lokasi</button>
+          </div>
+        `;
+      } else {
+        popupContent = `
+          <div style="min-width: 250px;">
+            <h3 style="margin: 0 0 10px 0;">${nama}</h3>
+            <p><strong>Keterangan:</strong> ${ket}</p>
+            <p><strong>Koordinat:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+            <p><strong>Tipe:</strong> ${tipe}</p>
+            <div class="location-details">
+              <h4>Detail Lokasi</h4>
+              <p style="color: #e74c3c; font-style: italic;">Detail lokasi tidak dapat dimuat. Pastikan koneksi internet tersedia.</p>
+            </div>
+            <button onclick="zoomToLocation(${lat}, ${lng})" style="margin-top: 10px; padding: 5px 10px; background: #3388ff; color: white; border: none; border-radius: 3px; cursor: pointer;">Zoom ke Lokasi</button>
+          </div>
+        `;
+      }
+      
+      return popupContent;
+    }
+    let locationCount = 0;
+
+    async function loadData() {
+      try {
+        const response = await fetch(sheetURL);
+        const csvText = await response.text();
+        const data = Papa.parse(csvText, { header: true }).data;
+        markerGroup.clearLayers();
+        locationCount = 0;
+
+        for (const row of data) {
+          const nama = row["LOP"];
+          const lat = parseFloat(row["latitude"]?.replace(",", "."));
+          const lng = parseFloat(row["longitude"]?.replace(",", "."));
+          const ket = row["KET"] || "";
+          const tipe = row["TIPE"] || "standard";
+
+          if (!isNaN(lat) && !isNaN(lng)) {
+            locationCount++;
+            
+            
+            let markerColor = '#3388ff'; 
+            if (tipe.toLowerCase() === 'penting') {
+              markerColor = '#ff3333'; 
+            }
+
+            
+            const customIcon = L.divIcon({
+              className: 'custom-div-icon',
+              html: `<div style="background-color: ${markerColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+              iconSize: [16, 16],
+              iconAnchor: [8, 8]
+            });
+
+            
+            const marker = L.marker([lat, lng], { icon: customIcon }).addTo(markerGroup);
+            
+            
+            marker.on('click', async function() {
+              
+              marker.bindPopup(`
+                <div style="min-width: 250px;">
+                  <h3 style="margin: 0 0 10px 0;">${nama}</h3>
+                  <p><strong>Keterangan:</strong> ${ket}</p>
+                  <p><strong>Koordinat:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+                  <p><strong>Tipe:</strong> ${tipe}</p>
+                  <div class="location-details">
+                    <h4>Detail Lokasi</h4>
+                    <div class="loading"></div> Memuat detail lokasi...
+                  </div>
+                </div>
+              `).openPopup();
+              
+              
+              const popupContent = await createPopupContent(nama, lat, lng, ket, tipe);
+              marker.bindPopup(popupContent).openPopup();
+            });
+            
+            
+            marker.bindTooltip(nama, {
+              permanent: false,
+              direction: 'top',
+              offset: [0, -10]
+            });
+          }
+        }
+
+        
+        document.getElementById('last-update').textContent = 
+          `Terakhir diperbarui: ${new Date().toLocaleTimeString()}`;
+      
+        document.getElementById('location-count').textContent = locationCount;
+        
+        console.log("Data diperbarui:", new Date().toLocaleTimeString());
+      } catch (err) {
+        console.error("Gagal memuat data:", err);
+      }
+    }
+
+    function zoomToLocation(lat, lng) {
+      map.setView([lat, lng], 17);
+    }
+    loadData();
+    setInterval(loadData, 60000);
+  </script>
+</body>
+</html>
