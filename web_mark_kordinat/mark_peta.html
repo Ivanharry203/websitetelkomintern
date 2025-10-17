@@ -33,28 +33,27 @@
     }
 
     .btn-kembali {
-  position: absolute;
-  top: 20px;       /* jarak dari atas */
-  left: 20px;      /* jarak dari kiri */
-  background: #fff;
-  border: 2px solid #c60000;
-  color: #c60000;
-  font-weight: 600;
-  border-radius: 30px;
-  padding: 8px 18px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #fff;
+      border: 2px solid #c60000;
+      color: #c60000;
+      font-weight: 600;
+      border-radius: 30px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
 
-.btn-kembali:hover {
-  background: #c60000;
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(198, 0, 0, 0.3);
-}
-
+    .btn-kembali:hover {
+      background: #c60000;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(198, 0, 0, 0.3);
+    }
 
     /* ====== TITLE ====== */
     h1 {
@@ -80,7 +79,7 @@
       justify-content: center;
     }
 
-    /* ====== CARD STYLE (mirip gambar kedua) ====== */
+    /* ====== CARD STYLE ====== */
     .card {
       width: 260px;
       background: #fff;
@@ -126,7 +125,6 @@
       font-weight: 500;
     }
 
-    /* ====== FOOTER ====== */
     footer {
       margin-top: 50px;
       color: #666;
@@ -138,19 +136,89 @@
         width: 90%;
       }
     }
+
+    /* ===== MODAL UNTUK FITUR KML ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    select {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin-bottom: 20px;
+      width: 80%;
+    }
+
+    .link-box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 0 auto;
+      width: 100%;
+      word-wrap: break-word;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .copy-btn {
+      background: #0047b3;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .copy-btn:hover {
+      background: #003c99;
+    }
+
+    .close-btn {
+      background: #c60000;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background: #a50000;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <a href="dashboard.html" class="btn-kembali" onclick="history.back()">
-      ← Kembali
-    </a>
+    <a href="dashboard.html" class="btn-kembali" onclick="history.back()">← Kembali</a>
   </header>
 
   <main>
     <h1>Mark Peta</h1>
-    <h2>Divisi SDI </h2>
+    <h2>Divisi SDI</h2>
 
     <div class="card-container">
       <div class="card" onclick="bukaHalaman('isiData')">
@@ -166,19 +234,106 @@
         <div class="card-desc">Menampilkan lokasi dari data koordinat</div>
         <div class="status">Active</div>
       </div>
+
+      <div class="card" onclick="bukaGenerator()">
+        <div class="card-icon">🔗</div>
+        <div class="card-title">Generator Link KML</div>
+        <div class="card-desc">Buat link KML otomatis dari Spreadsheet</div>
+        <div class="status">Active</div>
+      </div>
     </div>
   </main>
 
   <footer>Magang Industri UNTIDAR 2025</footer>
 
+  <!-- MODAL UNTUK FITUR GENERATOR KML -->
+  <div id="kmlModal" class="modal">
+    <div class="modal-content">
+      <h2>Generator Link KML Telkom</h2>
+      <p>Pilih nama sheet:</p>
+      <select id="sheetSelect">
+        <option value="">Memuat daftar sheet...</option>
+      </select>
+      <div id="result" class="link-box">Link akan muncul di sini...</div>
+      <button class="copy-btn" onclick="copyLink()">Salin Link</button><br>
+      <button class="close-btn" onclick="tutupModal()">Tutup</button>
+    </div>
+  </div>
+
   <script>
+    // === KONFIGURASI ===
+    const spreadsheetId = "15FK9eigoimd-rLIoxDhpArpfMQkdx4TCJwE6wkz25Eg"; // ID Spreadsheet kamu
+    const baseUrl = "https://script.google.com/macros/s/AKfycbzMNq9svRMSR4GvT0laKWyUzyMV9d6o2cfWctVN4HkD5crmcJmaXHiMpBn1c3CRei0/exec";
+
+    // === FUNGSI UTAMA ===
     function bukaHalaman(tujuan) {
       if (tujuan === 'isiData') {
-        window.open('https://docs.google.com/spreadsheets/d/15FK9eigoimd-rLIoxDhpArpfMQkdx4TCJwE6wkz25Eg/edit?usp=sharing', '_blank');
+        window.open(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?usp=sharing`, '_blank');
       } else if (tujuan === 'lihatPeta') {
         window.open('mark.html', '_blank');
       }
     }
+
+    // === MODAL HANDLER ===
+    const modal = document.getElementById("kmlModal");
+    const sheetSelect = document.getElementById("sheetSelect");
+    const resultDiv = document.getElementById("result");
+    let currentLink = "";
+
+    function bukaGenerator() {
+      modal.style.display = "flex";
+      muatDaftarSheet();
+    }
+
+    function tutupModal() {
+      modal.style.display = "none";
+      resultDiv.innerHTML = "Link akan muncul di sini...";
+      currentLink = "";
+    }
+
+    // === MUAT DAFTAR SHEET OTOMATIS ===
+    async function muatDaftarSheet() {
+      sheetSelect.innerHTML = `<option>Memuat...</option>`;
+      try {
+        const res = await fetch(baseUrl);
+        const data = await res.json();
+
+        if (data.status === "ok" && data.type === "list") {
+          sheetSelect.innerHTML = `<option value="">-- Pilih Sheet --</option>`;
+          data.sheets.forEach(sheet => {
+            const opt = document.createElement("option");
+            opt.value = sheet;
+            opt.textContent = sheet;
+            sheetSelect.appendChild(opt);
+          });
+        } 
+      } catch (err) {
+        sheetSelect.innerHTML = `<option value="">Gagal memuat daftar sheet</option>`;
+        console.error("Error:", err);
+      }
+    }
+
+    // === GENERATE LINK KML ===
+    sheetSelect.addEventListener("change", () => {
+      const sheet = sheetSelect.value;
+      if (sheet) {
+        currentLink = `${baseUrl}?sheet=${encodeURIComponent(sheet)}`;
+        resultDiv.innerHTML = `<strong>${currentLink}</strong>`;
+      } else {
+        resultDiv.innerHTML = "Link akan muncul di sini...";
+        currentLink = "";
+      }
+    });
+
+    function copyLink() {
+      if (!currentLink) return alert("Pilih sheet dulu!");
+      navigator.clipboard.writeText(currentLink);
+      alert("Link berhasil disalin!");
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) tutupModal();
+    };
   </script>
 
 </body>
