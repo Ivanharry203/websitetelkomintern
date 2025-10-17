@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <link rel="stylesheet" href="5713.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
   <div class="search-container" id="search-container"></div>
@@ -23,12 +24,50 @@
       <div class="legend-color" style="background-color: #3388ff;"></div>
       <span>Lokasi LOP</span>
     </div>
-    <div class="legend-item">
-      <div class="legend-color" style="background-color: #ff3333;"></div>
-      <span>Lokasi Penting</span>
-    </div>
   </div>
   
+<div id="download-container" 
+  style="
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  ">
+  
+  <button id="download-main-btn" 
+    style="
+      background: #FF0000;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-weight: 600;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
+    ">
+     Download ▼
+  </button>
+  
+  <div id="download-options" 
+    style="
+      display: none;
+      background: rgb(255, 242, 4);
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      margin-top: 5px;
+      overflow: hidden;
+    ">
+    <button id="download-kml" 
+      style="border: none; background: #ffffff; padding: 8px 12px; width: 130px; text-align: left; cursor: pointer;">KML</button>
+    <button id="download-kmz" 
+      style="border: none; background: #ff0000; padding: 8px 12px; width: 130px; text-align: left; cursor: pointer;"> KMZ</button>
+  </div>
+</div>
+
+
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -321,6 +360,93 @@
     }
     loadData();
     setInterval(loadData, 60000);
+    // Toggle tampilan opsi download
+const mainBtn = document.getElementById("download-main-btn");
+const options = document.getElementById("download-options");
+
+mainBtn.addEventListener("click", () => {
+  options.style.display = options.style.display === "none" ? "block" : "none";
+});
+
+// Tutup menu otomatis saat klik di luar
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("download-container").contains(e.target)) {
+    options.style.display = "none";
+  }
+});
+
+// Fungsi membuat isi KML
+async function generateKMLString() {
+  const response = await fetch(sheetURL);
+  const csvText = await response.text();
+  const data = Papa.parse(csvText, { header: true }).data;
+
+  let placemarks = "";
+
+  data.forEach((row) => {
+    const nama = row["LOP"] || "Tanpa Nama";
+    const lat = parseFloat(row["latitude"]?.replace(",", "."));
+    const lng = parseFloat(row["longitude"]?.replace(",", "."));
+    const ket = row["KET"] || "-";
+    const tanggal = row["Tanggal"] || "-";
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      placemarks += `
+        <Placemark>
+          <name>${nama}</name>
+          <description><![CDATA[
+            <strong>Keterangan:</strong> ${ket}<br>
+            <strong>Latitude:</strong> ${lat}<br>
+            <strong>Longitude:</strong> ${lng}<br>
+            <strong>Tanggal:</strong> ${tanggal}
+          ]]></description>
+          <Point>
+            <coordinates>${lng},${lat},0</coordinates>
+          </Point>
+        </Placemark>
+      `;
+    }
+  });
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+  <kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+      <name>Data LOP Telkom dari Spreadsheet</name>
+      ${placemarks}
+    </Document>
+  </kml>`;
+}
+
+// Fungsi download KML
+async function downloadKML() {
+  const kmlContent = await generateKMLString();
+  const blob = new Blob([kmlContent], { type: "application/vnd.google-earth.kml+xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "data_lop_telkom.kml";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Fungsi download KMZ (zip dari KML)
+async function downloadKMZ() {
+  const kmlContent = await generateKMLString();
+  const zip = new JSZip();
+  zip.file("data_lop_telkom.kml", kmlContent);
+  const content = await zip.generateAsync({ type: "blob" });
+  
+  const url = URL.createObjectURL(content);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "data_lop_telkom.kmz";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Event klik pada tombol
+document.getElementById("download-kml").addEventListener("click", downloadKML);
+document.getElementById("download-kmz").addEventListener("click", downloadKMZ);
   </script>
 </body>
 </html>
