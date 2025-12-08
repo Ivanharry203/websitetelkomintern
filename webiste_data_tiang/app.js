@@ -1,12 +1,18 @@
-// app.js (module) - Final (FormData POST; fetch GET via text->JSON.parse)
+// app.js (module) - Final + Fitur Download KML
 const API_URL = 'https://script.google.com/macros/s/AKfycbzbFoHNnJghvziE02-fm4iQYcbKfG1XXpRXJEjMldNbruO8hAqw3Y2L4ow7BIJuDzC6/exec';
+
 // ----- Helper utilities 
 const $ = (sel, root = document) => root.querySelector(sel);
 const createEl = (tag, attrs = {}) => {
   const el = document.createElement(tag);
-  Object.entries(attrs).forEach(([k,v]) => { if(k === 'text') el.textContent = v; else el.setAttribute(k, v); });
+  Object.entries(attrs).forEach(([k,v]) => { 
+    if(k === 'text') el.textContent = v; 
+    else el.setAttribute(k, v); 
+  });
   return el;
 };
+
+let lastMatchedODP = [];
 
 function debounce(fn, wait=300){
   let t;
@@ -25,9 +31,8 @@ function hideSpinner(){
   if(sp) sp.remove();
 }
 
-
 function normalizeCoord(lng, lat){
-  return `${lng},${lat}`; 
+  return `${lng},${lat}`;
 }
 
 // parse KML string to array of [lng,lat]
@@ -37,7 +42,6 @@ function parseKmlPolygonCoords(kmlText){
   const parseErr = xml.querySelector('parsererror');
   if(parseErr) throw new Error('File KML tidak bisa diparsing (format tidak valid).');
 
-  // Check common coordinates nodes
   const nodes = xml.querySelectorAll('Polygon coordinates, LinearRing coordinates, coordinates, Point coordinates');
   const points = [];
   nodes.forEach(node => {
@@ -74,7 +78,9 @@ const suggestionsEl = $('#suggestions');
 const resultInfo = $('#resultInfo');
 const matchesText = $('#matchesText');
 
-let parsedCoords = []; // array of [lng, lat]
+const btnDownloadKml = $('#btnDownloadKml'); // Tombol baru untuk download KML
+
+let parsedCoords = [];
 let polygonFileName = '';
 
 // ---- Navigation ----
@@ -88,7 +94,6 @@ navButtons.forEach(btn => btn.addEventListener('click', (e) => {
   }
 }));
 
-// default: show upload
 document.querySelector('[data-target="upload"]').click();
 
 // ---- Upload flow ----
@@ -103,7 +108,7 @@ kmlInput.addEventListener('change', async (e) => {
   }
   try {
     const text = await f.text();
-    parsedCoords = parseKmlPolygonCoords(text); // may throw
+    parsedCoords = parseKmlPolygonCoords(text);
     const lines = parsedCoords.map(pt => `${pt[0]} , ${pt[1]}`);
     coordsText.textContent = lines.join('\n');
     btnUpload.disabled = false;
@@ -114,13 +119,12 @@ kmlInput.addEventListener('change', async (e) => {
   }
 });
 
-btnOpenSheet.addEventListener('click', (e) => {
+btnOpenSheet.addEventListener('click', () => {
   const ssId = '1cmEU2Njd_1q50FVexsljWkkaYdc8fYRDJUOhXbGEeJY';
-  const url = `https://docs.google.com/spreadsheets/d/${ssId}`;
-  btnOpenSheet.setAttribute('href', url);
+  btnOpenSheet.setAttribute('href', `https://docs.google.com/spreadsheets/d/${ssId}`);
 });
 
-// Upload button: POST using FormData to avoid preflight
+// Upload polygon
 btnUpload.addEventListener('click', async () => {
   if(parsedCoords.length === 0) {
     uploadStatus.textContent = 'Tidak ada koordinat yang dapat di-upload.';
@@ -175,19 +179,16 @@ btnUpload.addEventListener('click', async () => {
 });
 
 
-// ---- View flow: auto-suggestion & matching ----
+// ---- View flow ----
 let namaJalanCache = null;
+
 async function prefetchNamaJalanList(){
   if(namaJalanCache) return namaJalanCache;
   try {
     const resp = await fetch(`${API_URL}?action=list_names`);
     const txt = await resp.text();
     const data = JSON.parse(txt);
-    if(data && data.names) {
-      namaJalanCache = data.names;
-    } else {
-      namaJalanCache = [];
-    }
+    namaJalanCache = data && data.names ? data.names : [];
     return namaJalanCache;
   } catch(e){
     namaJalanCache = [];
@@ -231,9 +232,11 @@ searchInput.addEventListener('input', (e) => {
   onType(e.target.value.trim());
 });
 
+// Proses kecocokan
 async function onSelectNamaJalan(nama){
   resultInfo.textContent = 'Memproses';
   showSpinner(resultInfo);
+
   try {
     const resp = await fetch(`${API_URL}?action=get_polygon&nama_jalan=${encodeURIComponent(nama)}`);
     hideSpinner();
@@ -244,6 +247,7 @@ async function onSelectNamaJalan(nama){
       matchesText.textContent = 'Tidak ada data polygon untuk nama jalan ini.';
       return;
     }
+
     const polyCoords = data.polygon.trim().split(/\s+/).map(s => {
       const p = s.split(',');
       return [Number(p[0]), Number(p[1])];
@@ -252,24 +256,21 @@ async function onSelectNamaJalan(nama){
     const coordStrings = polyCoords.map(pt => normalizeCoord(pt[0], pt[1]));
     const uniqueCoords = Array.from(new Set(coordStrings));
 
-
     showSpinner(matchesText);
 
-    
     const form = new FormData();
-  form.append('action', 'match_coords');
-  form.append('coords', JSON.stringify(uniqueCoords.map(s => {
-    const [lng, lat] = s.split(',').map(Number);
-    return [lng, lat];  
-  })));
+    form.append('action', 'match_coords');
+    form.append('coords', JSON.stringify(uniqueCoords.map(s => {
+      const [lng, lat] = s.split(',').map(Number);
+      return [lng, lat];  
+    })));
 
     const matchResp = await fetch(API_URL, {
       method: 'POST',
       body: form
     });
+
     hideSpinner();
-
-
 
     const matchTxt = await matchResp.text();
     const matchData = JSON.parse(matchTxt);
@@ -283,6 +284,9 @@ async function onSelectNamaJalan(nama){
       matchesText.textContent = 'Tidak ada koordinat yang cocok pada data_tiang';
       return;
     }
+
+    lastMatchedODP = matchData.matches;  // SIMPAN HASIL
+    btnDownloadKml.disabled = false;     // Aktifkan tombol
 
     const lines = matchData.matches.map((m, idx) => {
       const name = m.name || m.designator || m.telco_pole_tag || '(unknown)';
@@ -306,4 +310,75 @@ searchInput.addEventListener('keydown', (ev) => {
     const val = searchInput.value.trim();
     if(val) onSelectNamaJalan(val);
   }
+});
+
+
+// ------------------------------------------------------
+// --------------- FITUR DOWNLOAD KML -------------------
+// ------------------------------------------------------
+
+function generateKmlFromMatches(matches) {
+
+  const header = `<?xml version="1.0" encoding="UTF-8"?>
+  <kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Hasil Pemetaan ODP</name>
+    <description>File KML hasil pencarian polygon</description>
+  `;
+
+  const footer = `
+  </Document>
+  </kml>`;
+
+  const placemarks = matches.map(m => {
+
+    const nama = m.name || m.designator || m.telco_pole_tag || '(unknown)';
+    const lng = m.longitude ?? m.lng ?? m.long;
+    const lat = m.latitude ?? m.lat;
+
+    const desa = m.desa || 'Desa Belum Tersedia';
+    const kec  = m.kecamatan || 'Kecamatan Belum Tersedia';
+    const kab  = m.kabupaten || 'Kabupaten Belum Tersedia';
+
+    return `
+    <Placemark>
+      <name>${nama}</name>
+      <description><![CDATA[
+        Nama ODP: ${nama}<br/>
+        Desa: ${desa}<br/>
+        Kecamatan: ${kec}<br/>
+        Kabupaten: ${kab}
+      ]]></description>
+      <Point>
+        <coordinates>${lng},${lat}</coordinates>
+      </Point>
+    </Placemark>
+    `;
+  }).join('\n');
+
+  return header + placemarks + footer;
+}
+
+btnDownloadKml.addEventListener('click', () => {
+
+  if(!lastMatchedODP.length){
+    alert('Tidak ada data ODP untuk dibuat KML.');
+    return;
+  }
+
+  const kmlContent = generateKmlFromMatches(lastMatchedODP);
+
+  const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+
+  const jalan = searchInput.value.trim() || 'hasil_polygon';
+  const safeName = jalan.replace(/\s+/g, '_');
+
+  link.download = `${safeName}.kml`;
+  link.click();
+
+  URL.revokeObjectURL(url);
 });
