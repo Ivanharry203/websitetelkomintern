@@ -202,10 +202,10 @@ input[type="text"]:focus, input[type="search"]:focus {
 }
 
 .btn.link {
-  background-color: transparent;
-  color: var(--primary);
-  text-decoration: underline;
-  padding: 12px 16px;
+  background-color: red;
+  color: rgb(0, 0, 0) ;
+  padding: 10px 16px;
+  height: 55%;
 }
 
 .btn.link:hover {
