@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Rendaman Fiber Optic Network (FTTH/FTTx)</title>
+    <link rel="stylesheet" href="2123.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kalkulator Rendaman Fiber Optic Network</h1>
+        </header>
+
+        <div class="calculator-grid">
+            <div class="input-section">
+                <h2 class="section-title">Parameter Input</h2>
+
+                <div class="form-group">
+                    <label>Nama Pengorder</label>
+                    <input type="text" id="customerName" placeholder="Nama">
+                </div>
+
+                <div class="form-group">
+                    <label for="measurementIn">Pengukuran In (dBm)</label>
+                    <input type="number" id="measurementIn" step="0.01" placeholder="Contoh: -5.2">
+                </div>
+
+                <div class="form-group">
+                    <label>Panjang Gelombang (Fixed)</label>
+                    <input type="text" value="1550 nm" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="connectorCount">Jumlah Konektor</label>
+                    <input type="number" id="connectorCount" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="spliceCount">Jumlah Sambungan (Fusion Splice)</label>
+                    <input type="number" id="spliceCount" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="cableLength">Panjang Kabel (meter)</label>
+                    <input type="number" id="cableLength" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Splitter Configuration</label>
+                    <div class="splitter-group">
+                        <div>
+                            <label for="splitter1to2">1:2</label>
+                            <input type="number" id="splitter1to2" min="0" value="0">
+                        </div>
+                        <div>
+                            <label for="splitter1to4">1:4</label>
+                            <input type="number" id="splitter1to4" min="0" value="0">
+                        </div>
+                        <div>
+                            <label for="splitter1to8">1:8</label>
+                            <input type="number" id="splitter1to8" min="0" value="0">
+                        </div>
+                        <div>
+                            <label for="splitter1to16">1:16</label>
+                            <input type="number" id="splitter1to16" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="calculateBtn">Hitung Total Redaman</button>
+            </div>
+
+            <div class="result-section">
+                <h2 class="section-title">Hasil Perhitungan</h2>
+
+                <div class="result-box">
+                    <p>Total Redaman</p>
+                    <div class="result-value" id="totalLoss">0.00 dB</div>
+                    <div class="result-status" id="statusText">-</div>
+                </div>
+
+                <div class="breakdown">
+                    <h3 class="section-title">Rincian Perhitungan</h3>
+
+                    <div class="breakdown-item">
+                        <span>Loss Konektor:</span>
+                        <span id="lossConnector">0.00 dB</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span>Loss Sambungan:</span>
+                        <span id="lossSplice">0.00 dB</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span>Loss Kabel:</span>
+                        <span id="lossCable">0.00 dB</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span>Loss Splitter:</span>
+                        <span id="lossSplitter">0.00 dB</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span>Total Redaman:</span>
+                        <span id="totalLossBreakdown">0.00 dB</span>
+                    </div>
+
+                    <div class="breakdown-item">
+                        <span>Prediksi OUT (Teori):</span>
+                        <span id="predictedOut">0.00 dBm</span>
+                    </div>
+                </div>
+
+                <div class="parameter-table">
+                    <h3 class="section-title">Parameter Standar</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Konektor SC/APC</td><td>0.25 dB</td></tr>
+                            <tr><td>Sambungan Fusion Splice</td><td>0.10 dB</td></tr>
+                            <tr><td>Redaman Kabel 1550 nm</td><td>0.22 dB/km</td></tr>
+                            <tr><td>Splitter 1:2</td><td>3.8 dB</td></tr>
+                            <tr><td>Splitter 1:4</td><td>7.25 dB</td></tr>
+                            <tr><td>Splitter 1:8</td><td>10.38 dB</td></tr>
+                            <tr><td>Splitter 1:16</td><td>15 dB</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Kalkulator ini menggunakan standar ITU-T G.652D untuk perhitungan optical loss pada jaringan FTTH/FTTx.</p>
+        </footer>
+    </div>
+
+    <script src="2123.js"></script>
+</body>
+</html>

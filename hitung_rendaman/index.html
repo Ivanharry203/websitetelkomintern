@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UIM Terminasi </title>
+  <!-- docx library -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.3.0/build/index.umd.js"></script>
+  <!-- Poppins Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary: #e1251b; /* Merah Telkom */
+      --primary-dark: #b81d16;
+      --secondary: #111827; /* Hitam */
+      --secondary-light: #374151;
+      --background: #f9fafb; /* Abu-abu sangat muda */
+      --card-bg: #ffffff; /* Putih */
+      --text: #111827; /* Hitam */
+      --text-muted: #6b7280; /* Abu-abu */
+      --border: #e5e7eb; /* Abu-abu muda */
+      --danger: #ef4444; /* Merah untuk aksi berbahaya */
+      --danger-dark: #dc2626;
+    }
+    
+    *{box-sizing:border-box}
+    body{
+      font-family: 'Poppins', sans-serif;
+      background:var(--background);
+      margin:0;
+      color:var(--text);
+      line-height: 1.5;
+    }
+    .container{
+      max-width:980px;
+      margin:28px auto;
+      padding:16px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1{
+      font-size:18px;
+      margin:0;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .controls{
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+    }
+    input[type="text"]{
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      font-size:14px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+    }
+    input[type="text"]:focus{
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(225, 37, 27, 0.1);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:16px;
+    }
+    .card{
+      background:var(--card-bg);
+      padding:16px;
+      border-radius:10px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.1);
+      position:relative;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    .card h3{
+      margin:0 0 8px 0;
+      font-size:14px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .card .odp-name{
+      width:100%;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 12px;
+    }
+    .card .odp-name:focus{
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(225, 37, 27, 0.1);
+    }
+
+    .img-drop{
+      height:180px;
+      border:2px dashed var(--border);
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      overflow:hidden;
+      background:#fafafa;
+      transition: border-color 0.2s;
+      cursor: pointer;
+      margin-bottom: 12px;
+      flex-grow: 1;
+    }
+    .img-drop:hover, .img-drop:focus {
+      border-color: var(--primary);
+    }
+    .img-drop.empty{color:var(--text-muted);font-size:13px}
+    .img-drop img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+    .remove-img{
+      position:absolute;
+      right:6px;
+      top:6px;
+      background:rgba(239, 68, 68, 0.9);
+      color:white;
+      border:none;
+      border-radius:50%;
+      width:28px;
+      height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      font-size:14px;
+      transition: background-color 0.2s;
+      z-index: 10;
+    }
+    .remove-img:hover{
+      background:var(--danger-dark);
+    }
+
+    .floating-add{
+      position:fixed;
+      right:22px;
+      bottom:22px;
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      background:var(--primary);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-size:28px;
+      box-shadow:0 6px 18px rgba(225, 37, 27, 0.24);
+      cursor:pointer;
+      transition: background-color 0.2s, transform 0.2s;
+      z-index: 50;
+      border: none;
+    }
+    .floating-add:hover{
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    .toolbar{display:flex;gap:10px}
+    button.btn{
+      padding:10px 14px;
+      border-radius:8px;
+      border:1px solid transparent;
+      background:var(--primary);
+      color:white;
+      cursor:pointer;
+      font-weight: 500;
+      transition: background-color 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+    button.btn:hover{
+      background: var(--primary-dark);
+    }
+    button.ghost{
+      background:white;
+      color:var(--secondary);
+      border:1px solid var(--border);
+      transition: background-color 0.2s, border-color 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+    button.ghost:hover{
+      background: #f9fafb;
+      border-color: var(--secondary-light);
+    }
+    button.warn{
+      background:var(--danger);
+      color: white;
+      transition: background-color 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+    button.warn:hover{
+      background: var(--danger-dark);
+    }
+
+    /* modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:60;
+      padding: 16px;
+    }
+    .modal{
+      background:white;
+      padding:18px;
+      border-radius:10px;
+      max-width:420px;
+      width:100%;
+      box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .hint{
+      font-size:13px;
+      color:var(--text-muted);
+      margin-top:8px;
+      padding: 12px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+      margin-bottom: 16px;
+    }
+
+    /* small */
+    .top-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .delete-card-btn {
+      margin-top: auto;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .olt-input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 150px;
+    }
+
+    .olt-input-container label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width:768px){
+      .grid{grid-template-columns:1fr}
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .top-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .controls {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .floating-add {
+        right: 16px;
+        bottom: 16px;
+      }
+      .container {
+        margin: 16px auto;
+        padding: 12px;
+      }
+    }
+
+    @media (max-width:480px){
+      .controls {
+        flex-direction: column;
+      }
+      .controls button {
+        width: 100%;
+      }
+      .img-drop {
+        height: 160px;
+      }
+    }
+    .btn-kembali {
+  position: absolute;
+  top: 20px;       /* jarak dari atas */
+  left: 20px;      /* jarak dari kiri */
+  background: #fff;
+  border: 2px solid #c60000;
+  color: #c60000;
+  font-weight: 600;
+  border-radius: 30px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-kembali:hover {
+  background: #c60000;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(198, 0, 0, 0.3);
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+         <a href="https://ivanharry203.github.io/websitetelkomintern/web_mark_kordinat/dashboard.html" class="btn-kembali" onclick="history.back()">
+      ← Kembali
+    </a>
+      <h1>Cetak Dokumen UIM Terminasi</h1>
+      <div class="top-actions">
+        <div class="olt-input-container">
+          <label for="nama-olt">Nama LOP</label>
+          <input id="nama-olt" type="text" placeholder="Contoh: PT3-25-MGE-FAF "  />
+        </div>
+        <div class="controls">
+          <button id="btn-restart" class="ghost">Restart</button>
+          <button id="btn-export" class="btn">Cetak Dokumen</button>
+        </div>
+      </div>
+    </header>
+
+    <p class="hint">Petunjuk: Klik area gambar dari sebuah ODP lalu tekan <strong>Ctrl+V</strong> (paste) dari Snipping Tool / Snip &amp; Sketch / screenshot. Gunakan tombol + untuk menambah ODP.</p>
+
+    <main>
+      <section id="cards" class="grid">
+        <!-- ODP cards akan muncul di sini -->
+      </section>
+    </main>
+  </div>
+
+  <button class="floating-add" id="add-odp" title="Tambah ODP">+</button>
+
+  <!-- modal konfirmasi restart -->
+  <div id="modal" style="display:none">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <p style="font-weight:600;margin:0 0 8px 0">Apakah Anda yakin untuk merestart?</p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+          <button id="modal-no" class="ghost">Tidak</button>
+          <button id="modal-yes" class="warn">Ya</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data model: array of cards {id, odpName, imageBlob, imageUrl}
+    let cards = [];
+    const cardsEl = document.getElementById('cards');
+    const addBtn = document.getElementById('add-odp');
+    const namaOlt = document.getElementById('nama-olt');
+    const modal = document.getElementById('modal');
+    const btnRestart = document.getElementById('btn-restart');
+    const btnExport = document.getElementById('btn-export');
+
+    // utility id
+    function uid(){return 'id_'+Math.random().toString(36).slice(2,9)}
+
+    // create initial card
+    function createCard(initialName=''){
+      const id = uid();
+      const card = {id, odpName: initialName, imageBlob: null, imageUrl: ''};
+      cards.push(card);
+      renderCards();
+      return id;
+    }
+
+    function renderCards(){
+      cardsEl.innerHTML = '';
+      cards.forEach((c, idx) => {
+        const el = document.createElement('div'); 
+        el.className='card'; 
+        el.dataset.id=c.id;
+
+        const h = document.createElement('h3'); 
+        h.textContent='Nama ODP';
+
+        const input = document.createElement('input'); 
+        input.className='odp-name'; 
+        input.value=c.odpName;
+        input.placeholder='Contoh: ODP-01'; 
+        input.addEventListener('input', (e)=>{ c.odpName = e.target.value; });
+
+        const drop = document.createElement('div'); 
+        drop.className='img-drop '+(c.imageUrl?'has-img':'empty');
+        drop.tabIndex = 0;
+        drop.innerHTML = c.imageUrl 
+          ? `<img src="${c.imageUrl}" alt="img"/>` 
+          : `<div style="text-align:center;padding:8px">Klik area ini lalu tekan <strong>Ctrl+V</strong> untuk paste gambar<br><small style="color:var(--text-muted)">Atau gunakan tombol PrtSc + paste</small></div>`;
+
+        const removeBtn = document.createElement('button'); 
+        removeBtn.className='remove-img'; 
+        removeBtn.innerHTML='✕'; 
+        removeBtn.style.display = c.imageUrl ? 'flex' : 'none';
+        removeBtn.addEventListener('click', ()=>{ 
+          c.imageBlob=null; 
+          c.imageUrl=''; 
+          renderCards(); 
+        });
+
+        // 🔥 tombol hapus card (hanya untuk card ke-2 dst.)
+        if(idx > 0){
+          const delCardBtn = document.createElement('button');
+          delCardBtn.textContent = 'Hapus Form';
+          delCardBtn.className = 'ghost delete-card-btn';
+          delCardBtn.addEventListener('click', ()=>{
+            cards = cards.filter(x => x.id !== c.id);
+            renderCards();
+          });
+          el.appendChild(delCardBtn);
+        }
+
+        drop.addEventListener('click', ()=>{ setActivePasteTarget(c.id); drop.focus(); });
+        drop.addEventListener('focus', ()=>{ setActivePasteTarget(c.id); });
+
+        el.appendChild(h); 
+        el.appendChild(input); 
+        el.appendChild(drop); 
+        el.appendChild(removeBtn);
+        cardsEl.appendChild(el);
+      });
+    }
+
+    // keep track of which card is active for paste
+    let activePasteTarget = null;
+    function setActivePasteTarget(id){ activePasteTarget = id; }
+
+    // listen paste at document level
+    document.addEventListener('paste', async (e)=>{
+      if(!activePasteTarget) return; // not targetting an ODP
+      const items = e.clipboardData && e.clipboardData.items;
+      if(!items) return;
+      for(const it of items){
+        if(it.type.startsWith('image')){
+          const blob = it.getAsFile();
+          if(!blob) continue;
+          const url = URL.createObjectURL(blob);
+          const card = cards.find(x=>x.id===activePasteTarget);
+          if(card){ card.imageBlob = blob; card.imageUrl = url; renderCards(); }
+          e.preventDefault();
+          return;
+        }
+      }
+    });
+
+    // add new ODP button
+    addBtn.addEventListener('click', ()=>{ createCard(''); });
+
+    // restart modal
+    btnRestart.addEventListener('click', ()=>{ showModal(true); });
+    document.getElementById('modal-no').addEventListener('click', ()=>{ showModal(false); });
+    document.getElementById('modal-yes').addEventListener('click', ()=>{ // clear all
+      namaOlt.value = '';
+      cards = [];
+      renderCards();
+      showModal(false);
+      // create one empty card
+      createCard('');
+    });
+
+    function showModal(yes){ modal.style.display = yes ? 'block' : 'none'; }
+
+    // export DOCX
+    async function toArrayBuffer(blob){ return await blob.arrayBuffer(); }
+
+    async function exportDocx(){
+      // validate OLT
+      const olt = namaOlt.value.trim();
+      if(!olt){ alert('Silakan isi Nama OLT.'); namaOlt.focus(); return; }
+      // prepare doc
+      const { Document, Packer, Paragraph, HeadingLevel, TextRun, ImageRun } = docx;
+      const doc = new Document({ sections: [] });
+      const sectionChildren = [];
+
+      // for each card, validate name
+      for(const c of cards){
+       if(!c.odpName){
+    alert('Semua Nama ODP harus diisi.');
+    return;
+        }
+      }
+
+      for(const c of cards){
+        // heading: ODP name
+        sectionChildren.push(new Paragraph({ text: c.odpName, heading: HeadingLevel.HEADING_2 }));
+
+        if(c.imageBlob){
+          // convert to base64/arraybuffer
+          const arrayBuffer = await toArrayBuffer(c.imageBlob);
+          // limit image width to 550px (approx) to fit margins
+          sectionChildren.push(new Paragraph({ children: [ new ImageRun({ data: arrayBuffer, transformation: { width: 550, height: await calcImageHeight(c.imageBlob,550) } }) ] }));
+        } else {
+          sectionChildren.push(new Paragraph({ text: '(Tidak ada gambar)', spacing: { after: 200 } }));
+        }
+
+        // small spacer
+        sectionChildren.push(new Paragraph({ text: '' }));
+      }
+
+      doc.addSection({ properties: {}, children: sectionChildren });
+
+      const packer = new Packer();
+      const blob = await docx.Packer.toBlob(doc);
+      const fname = `UIM-TERMINASI-${olt}.docx`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    // helper to calculate image height preserving aspect ratio using an offscreen image
+    function calcImageHeight(blob, targetWidth){
+      return new Promise((resolve)=>{
+        const url = URL.createObjectURL(blob);
+        const img = new Image(); img.onload = ()=>{
+          const ratio = img.naturalHeight / img.naturalWidth;
+          const h = Math.round(targetWidth * ratio);
+          URL.revokeObjectURL(url);
+          resolve(h);
+        };
+        img.onerror = ()=>{ resolve(Math.round(targetWidth*0.6)); };
+        img.src = url;
+      });
+    }
+
+    btnExport.addEventListener('click', ()=>{ exportDocx().catch(e=>{ console.error(e); alert('Gagal membuat dokumen: '+e.message); }); });
+
+    // create initial
+    createCard('ODP-01');
+
+    // Accessibility: pressing Delete while an image area is focused will remove image
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Delete' && activePasteTarget){
+        const card = cards.find(x=>x.id===activePasteTarget);
+        if(card && card.imageUrl){ card.imageBlob=null; card.imageUrl=''; renderCards(); }
+      }
+    });
+
+    // ensure clicking outside clears active target
+    document.addEventListener('click', (ev)=>{
+      // if click not in a card drop area, clear active
+      if(!ev.target.closest('.img-drop')) activePasteTarget = null;
+    });
+  </script>
+</body>
+</html>
+
+
