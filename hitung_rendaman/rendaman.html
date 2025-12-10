@@ -1,145 +1,184 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Rendaman Fiber Optic Network (FTTH/FTTx)</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulator Redaman FTTH</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="2123.css">
 </head>
+
 <body>
+    <div class="header">
+        <a href="https://ivanharry203.github.io/websitetelkomintern/web_mark_kordinat/dashboard.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+        </a>
+        <h1>Kalkulator Redaman FTTH (OLT → ODP)</h1>
+    </div>
+
     <div class="container">
-        <header>
-            <h1>Kalkulator Rendaman Fiber Optic Network</h1>
-        </header>
-
-        <div class="calculator-grid">
-            <div class="input-section">
-                <h2 class="section-title">Parameter Input</h2>
-
-                <div class="form-group">
-                    <label>Nama Pengorder</label>
-                    <input type="text" id="customerName" placeholder="Nama">
-                </div>
-
-                <div class="form-group">
-                    <label for="measurementIn">Pengukuran In (dBm)</label>
-                    <input type="number" id="measurementIn" step="0.01" placeholder="Contoh: -5.2">
-                </div>
-
-                <div class="form-group">
-                    <label>Panjang Gelombang (Fixed)</label>
-                    <input type="text" value="1550 nm" disabled>
-                </div>
-
-                <div class="form-group">
-                    <label for="connectorCount">Jumlah Konektor</label>
-                    <input type="number" id="connectorCount" min="0" value="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="spliceCount">Jumlah Sambungan (Fusion Splice)</label>
-                    <input type="number" id="spliceCount" min="0" value="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="cableLength">Panjang Kabel (meter)</label>
-                    <input type="number" id="cableLength" min="0" value="0">
-                </div>
-
-                <div class="form-group">
-                    <label>Splitter Configuration</label>
-                    <div class="splitter-group">
-                        <div>
-                            <label for="splitter1to2">1:2</label>
-                            <input type="number" id="splitter1to2" min="0" value="0">
-                        </div>
-                        <div>
-                            <label for="splitter1to4">1:4</label>
-                            <input type="number" id="splitter1to4" min="0" value="0">
-                        </div>
-                        <div>
-                            <label for="splitter1to8">1:8</label>
-                            <input type="number" id="splitter1to8" min="0" value="0">
-                        </div>
-                        <div>
-                            <label for="splitter1to16">1:16</label>
-                            <input type="number" id="splitter1to16" min="0" value="0">
-                        </div>
-                    </div>
-                </div>
-
-                <button id="calculateBtn">Hitung Total Redaman</button>
+        <!-- Info Box -->
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            Kalkulator ini digunakan untuk menghitung total redaman (loss) pada jaringan FTTH dari OLT ke ODP. Masukkan parameter sesuai dengan kondisi aktual jaringan.
+        </div>
+        
+        <!-- Parameter Input -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-cogs"></i> Parameter Input
             </div>
-
-            <div class="result-section">
-                <h2 class="section-title">Hasil Perhitungan</h2>
-
-                <div class="result-box">
-                    <p>Total Redaman</p>
-                    <div class="result-value" id="totalLoss">0.00 dB</div>
-                    <div class="result-status" id="statusText">-</div>
+            
+            <div class="form-group">
+                <label for="nama" class="important-label">Nama Pengorder</label>
+                <input type="text" id="nama" placeholder="Masukkan nama pengorder">
+            </div>
+            
+            
+            <div class="form-row" style="margin-top: 15px;">
+                <label class="important-label">Panjang Gelombang (Fixed)</label>
+                <span class="fixed-value">1550 nm</span>
+            </div>
+        </div>
+        
+        <!-- Komponen Redaman -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-network-wired"></i> Komponen Redaman
+            </div>
+            
+            <div class="form-grid">
+                <!-- Kabel -->
+                <div class="form-group">
+                    <label for="vol_feeder">Kabel Feeder (0.35 dB/km)</label>
+                    <input type="number" id="vol_feeder" value="2.2" step="0.1" placeholder="Panjang dalam km">
                 </div>
-
-                <div class="breakdown">
-                    <h3 class="section-title">Rincian Perhitungan</h3>
-
-                    <div class="breakdown-item">
-                        <span>Loss Konektor:</span>
-                        <span id="lossConnector">0.00 dB</span>
-                    </div>
-
-                    <div class="breakdown-item">
-                        <span>Loss Sambungan:</span>
-                        <span id="lossSplice">0.00 dB</span>
-                    </div>
-
-                    <div class="breakdown-item">
-                        <span>Loss Kabel:</span>
-                        <span id="lossCable">0.00 dB</span>
-                    </div>
-
-                    <div class="breakdown-item">
-                        <span>Loss Splitter:</span>
-                        <span id="lossSplitter">0.00 dB</span>
-                    </div>
-
-                    <div class="breakdown-item">
-                        <span>Total Redaman:</span>
-                        <span id="totalLossBreakdown">0.00 dB</span>
-                    </div>
-
-                    <div class="breakdown-item">
-                        <span>Prediksi OUT (Teori):</span>
-                        <span id="predictedOut">0.00 dBm</span>
-                    </div>
+                
+                <div class="form-group">
+                    <label for="vol_dist">Kabel Distribusi (0.35 dB/km)</label>
+                    <input type="number" id="vol_dist" value="1.4" step="0.1" placeholder="Panjang dalam km">
                 </div>
-
-                <div class="parameter-table">
-                    <h3 class="section-title">Parameter Standar</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Parameter</th>
-                                <th>Nilai</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>Konektor SC/APC</td><td>0.25 dB</td></tr>
-                            <tr><td>Sambungan Fusion Splice</td><td>0.10 dB</td></tr>
-                            <tr><td>Redaman Kabel 1550 nm</td><td>0.22 dB/km</td></tr>
-                            <tr><td>Splitter 1:2</td><td>3.8 dB</td></tr>
-                            <tr><td>Splitter 1:4</td><td>7.25 dB</td></tr>
-                            <tr><td>Splitter 1:8</td><td>10.38 dB</td></tr>
-                            <tr><td>Splitter 1:16</td><td>15 dB</td></tr>
-                        </tbody>
-                    </table>
+                
+                <!-- Splitter -->
+                <div class="form-group">
+                    <label for="vol_spl2">Splitter 1:2 (4.2 dB)</label>
+                    <input type="number" id="vol_spl2" value="0" placeholder="Jumlah splitter">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vol_spl4">Splitter 1:4 (7.8 dB)</label>
+                    <input type="number" id="vol_spl4" value="1" placeholder="Jumlah splitter">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vol_spl8">Splitter 1:8 (11.4 dB)</label>
+                    <input type="number" id="vol_spl8" value="1" placeholder="Jumlah splitter">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vol_spl16">Splitter 1:16 (15 dB)</label>
+                    <input type="number" id="vol_spl16" value="0" placeholder="Jumlah splitter">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vol_spl32">Splitter 1:32 (18.6 dB)</label>
+                    <input type="number" id="vol_spl32" value="0" placeholder="Jumlah splitter">
+                </div>
+                
+                <!-- Konektor -->
+                <div class="form-group">
+                    <label for="vol_kon">Konektor SC/UPC (0.25 dB)</label>
+                    <input type="number" id="vol_kon" value="6" placeholder="Jumlah konektor">
+                </div>
+                
+                <!-- Splicing -->
+                <div class="form-group">
+                    <label for="vol_spf">Splicing Feeder (0.1 dB)</label>
+                    <input type="number" id="vol_spf" value="5" placeholder="Jumlah splicing">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vol_spd">Splicing Distribusi (0.1 dB)</label>
+                    <input type="number" id="vol_spd" value="2" placeholder="Jumlah splicing">
                 </div>
             </div>
         </div>
-
-        <footer>
-            <p>Kalkulator ini menggunakan standar ITU-T G.652D untuk perhitungan optical loss pada jaringan FTTH/FTTx.</p>
-        </footer>
+        
+        <!-- Tombol Hitung -->
+        <button class="calc-btn" onclick="hitung()">
+            <i class="fas fa-calculator"></i> Hitung Total Redaman
+        </button>
+        
+        <!-- Hasil Perhitungan -->
+        <div class="result-card">
+            <div class="result-title">Total Redaman</div>
+            <div class="result-value" id="hasil">0.00 dB</div>
+        </div>
+        
+        <!-- Rincian Perhitungan -->
+        <div class="details-card">
+            <div class="details-title">Rincian Perhitungan</div>
+            
+            <div class="detail-item">
+                <span>Kabel Feeder (2.2 km × 0.35 dB/km)</span>
+                <span id="tot_feeder">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Kabel Distribusi (1.4 km × 0.35 dB/km)</span>
+                <span id="tot_dist">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splitter 1:2 (0 × 4.2 dB)</span>
+                <span id="tot_spl2">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splitter 1:4 (1 × 7.8 dB)</span>
+                <span id="tot_spl4">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splitter 1:8 (1 × 11.4 dB)</span>
+                <span id="tot_spl8">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splitter 1:16 (0 × 15 dB)</span>
+                <span id="tot_spl16">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splitter 1:32 (0 × 18.6 dB)</span>
+                <span id="tot_spl32">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Konektor SC/UPC (6 × 0.25 dB)</span>
+                <span id="tot_kon">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splicing Feeder (5 × 0.1 dB)</span>
+                <span id="tot_spf">0.00 dB</span>
+            </div>
+            
+            <div class="detail-item">
+                <span>Splicing Distribusi (2 × 0.1 dB)</span>
+                <span id="tot_spd">0.00 dB</span>
+            </div>
+            
+            <div class="detail-total">
+                <span>Total Redaman</span>
+                <span id="detail_total">0.00 dB</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p style="margin-top: 5px; font-size: 0.85rem;">Magang Industri Untidar 2025</p>
+        </div>
     </div>
 
     <script src="2123.js"></script>
