@@ -1,210 +1,364 @@
- :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #34495e;
-        }
-        
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
         }
         
         body {
-            background-color: #f5f7fa;
-            color: var(--dark);
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
             line-height: 1.6;
+            padding: 15px;
+            min-height: 100vh;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Header dengan tombol kembali */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: var(--primary);
+        .back-btn {
+            display: flex;
+            align-items: center;
+            background-color: #d32f2f;
             color: white;
+            border: none;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(211, 47, 47, 0.2);
+        }
+        
+        .back-btn:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(211, 47, 47, 0.3);
+        }
+        
+        .back-btn i {
+            margin-right: 8px;
         }
         
         h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+            text-align: center;
+            color: #d32f2f;
+            margin: 0 auto;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        @media (max-width: 768px) {
-            .calculator-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .input-section, .result-section {
-            background-color: white;
+        /* Container utama */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
         }
         
-        .section-title {
-            font-size: 1.5rem;
+        /* Card untuk setiap bagian */
+        .card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light);
-            color: var(--primary);
+            border-left: 5px solid #d32f2f;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-title {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 12px;
+            background-color: #ffebee;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        /* Form grid responsif */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
         }
         
-        label {
-            display: block;
+        .form-group label {
             margin-bottom: 8px;
-            font-weight: 600;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
         }
         
-        input, select {
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        
+        .form-row label {
+            flex: 1;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        /* Input styling */
+        input[type="number"], 
+        input[type="text"] {
+            background-color: #fff;
+            color: #333;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
         
-        input:focus, select:focus {
-            border-color: var(--secondary);
+        input[type="number"]:focus, 
+        input[type="text"]:focus {
             outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            border-color: #d32f2f;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
         }
         
-        .splitter-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .wavelength-group {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .wavelength-group label {
-            margin-bottom: 0;
-        }
-        
-        .wavelength-option {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        button {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            font-size: 1.1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s;
-            font-weight: 600;
-        }
-        
-        button:hover {
-            background-color: #2980b9;
-        }
-        
-        .result-box {
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        /* Hasil perhitungan */
+        .result-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
             text-align: center;
+            border: 2px solid #d32f2f;
+        }
+        
+        .result-title {
+            color: #d32f2f;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
         }
         
         .result-value {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
-            margin: 15px 0;
+            color: #d32f2f;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        .result-status {
-            font-size: 1.3rem;
+        /* Tombol hitung */
+        .calc-btn {
+            display: block;
+            width: 100%;
+            max-width: 320px;
+            margin: 30px auto;
+            background: linear-gradient(to right, #d32f2f, #b71c1c);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 17px;
             font-weight: 600;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(211, 47, 47, 0.25);
+            font-family: 'Poppins', sans-serif;
         }
         
-        .breakdown {
-            margin-top: 25px;
+        .calc-btn:hover {
+            background: linear-gradient(to right, #b71c1c, #9a0007);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(211, 47, 47, 0.35);
         }
         
-        .breakdown-item {
+        .calc-btn:active {
+            transform: translateY(1px);
+        }
+        
+        /* Rincian perhitungan */
+        .details-card {
+            background-color: #fafafa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #eee;
+        }
+        
+        .details-title {
+            color: #d32f2f;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .detail-item {
             display: flex;
             justify-content: space-between;
             padding: 12px 0;
-            border-bottom: 1px solid var(--light);
+            border-bottom: 1px solid #eee;
         }
         
-        .breakdown-item:last-child {
+        .detail-item:last-child {
             border-bottom: none;
-            font-weight: 700;
-            font-size: 1.1rem;
         }
         
-        .parameter-table {
-            margin-top: 30px;
+        .detail-item span:first-child {
+            color: #555;
+            font-weight: 500;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--light);
-        }
-        
-        th {
-            background-color: var(--light);
+        .detail-item span:last-child {
+            color: #d32f2f;
             font-weight: 600;
         }
         
-        .very-good { background-color: var(--success); color: white; }
-        .good { background-color: var(--secondary); color: white; }
-        .warning { background-color: var(--warning); color: white; }
-        .danger { background-color: var(--danger); color: white; }
+        .detail-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            margin-top: 10px;
+            border-top: 2px solid #d32f2f;
+            font-weight: bold;
+        }
         
-        footer {
+        .detail-total span:first-child {
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .detail-total span:last-child {
+            color: #d32f2f;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        /* Responsif untuk mobile */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-value {
+                font-size: 2.5rem;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .back-btn {
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                text-align: left;
+                font-size: 1.4rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .back-btn {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+        
+        /* Footer */
+        .footer {
             text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: var(--dark);
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+            color: #777;
             font-size: 0.9rem;
         }
+        
+        /* Info box */
+        .info-box {
+            background-color: #f0f7ff;
+            border-left: 4px solid #1976d2;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        .info-box i {
+            color: #1976d2;
+            margin-right: 8px;
+        }
+        
+        /* Warna fixed value */
+        .fixed-value {
+            color: #d32f2f;
+            font-weight: 700;
+            background-color: #ffebee;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        /* Warna untuk label penting */
+        .important-label {
+            color: #333;
+            font-weight: 600;
+        }
+
