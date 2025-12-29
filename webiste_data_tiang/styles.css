@@ -181,7 +181,7 @@ input[type="text"]:focus, input[type="search"]:focus {
 /* Buttons */
 .btn {
   background-color: var(--primary);
-  color: rgb(255, 0, 0);
+  color: rgb(255, 255, 255);
   border: none;
   border-radius: 8px;
   font-size: 15px;
@@ -202,10 +202,10 @@ input[type="text"]:focus, input[type="search"]:focus {
 }
 
 .btn.link {
-  background-color: transparent;
-  color: var(--primary);
-  text-decoration: underline;
-  padding: 12px 16px;
+  background-color: red;
+  color: rgb(0, 0, 0) ;
+  padding: 10px 16px;
+  height: 55%;
 }
 
 .btn.link:hover {
@@ -342,4 +342,54 @@ input[type="text"]:focus, input[type="search"]:focus {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+/* ===== Popup Konfirmasi ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #fff;
+  width: 360px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.2);
+}
+
+.modal h3 {
+  margin: 0 0 10px;
+}
+
+.modal p {
+  font-size: 14px;
+  color: #444;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
 }

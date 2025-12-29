@@ -1,5 +1,24 @@
+// ------------------ LOGIN CHECK ------------------
+let firebaseToken = null;
+
+(async function checkLogin() {
+  try {
+    firebaseToken = localStorage.getItem("tiang_token");
+
+    // Jika belum login → lempar ke login.html
+    if (!firebaseToken) {
+      window.location.replace("./login.html");
+      return;
+    }
+  } catch (err) {
+    console.warn("Token check dilewati:", err.message);
+    // Jika error, tetap lanjut (tidak memblokir)
+  }
+})();
+
+
 // app.js (module) - Final + Fitur Download KML
-const API_URL = 'https://script.google.com/macros/s/AKfycbzbFoHNnJghvziE02-fm4iQYcbKfG1XXpRXJEjMldNbruO8hAqw3Y2L4ow7BIJuDzC6/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzk-DzkizR-iYMFGQITvwOY0fDmGF9C5vcO9-fRh75wxeAOLv1jE_8ZxpvFCt2aF90ksw/exec';
 
 // ----- Helper utilities 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -126,58 +145,61 @@ btnOpenSheet.addEventListener('click', () => {
 
 // Upload polygon
 btnUpload.addEventListener('click', async () => {
-  if(parsedCoords.length === 0) {
-    uploadStatus.textContent = 'Tidak ada koordinat yang dapat di-upload.';
-    return;
-  }
+  if (parsedCoords.length === 0) return alert('Tidak ada koordinat.');
   const nama_jalan = namaJalanInput.value.trim();
-  if(!nama_jalan){
-    uploadStatus.textContent = 'Isi nama_jalan terlebih dahulu.';
-    return;
-  }
+  if (!nama_jalan) return alert('Nama jalan wajib diisi.');
 
-  const data_koordinat = parsedCoords.map(pt => `${pt[0]},${pt[1]}`).join(' ');
-
-  uploadStatus.style.color = '';
-  uploadStatus.textContent = 'Mengirim...';
-  showSpinner(uploadStatus);
+  btnUpload.disabled = true;
 
   try {
-    const form = new FormData();
-    form.append('action', 'upload_polygon');
-    form.append('nama_file', polygonFileName || `uploaded_${Date.now()}.kml`);
-    form.append('nama_jalan', nama_jalan);
-    form.append('data_koordinat', data_koordinat);
+    // 1️⃣ CEK APAKAH SUDAH ADA
+    const cek = await fetch(`${API_URL}?action=check_nama_jalan&nama_jalan=${encodeURIComponent(nama_jalan)}`);
+    const cekData = await cek.json();
 
-    const resp = await fetch(API_URL, {
-      method: 'POST',
-      body: form
-    });
+    let action = "upload_polygon";
 
-    hideSpinner();
-    const txt = await resp.text();
-    const data = JSON.parse(txt);
-
-    if(data && data.success){
-      uploadStatus.style.color = 'var(--success)';
-      uploadStatus.textContent = 'Upload berhasil.';
-      btnUpload.disabled = true;
-      namaJalanInput.value = '';
-      kmlInput.value = '';
-      parsedCoords = [];
-      coordsText.textContent = 'Belum ada file KML yang dipilih.';
-      namaJalanCache = null;
-    } else {
-      uploadStatus.style.color = 'var(--danger)';
-      uploadStatus.textContent = 'Gagal: ' + (data && data.error ? data.error : JSON.stringify(data));
+    // 2️⃣ JIKA ADA → KONFIRMASI
+    if (cekData.exists) {
+      const ok = confirm("Apakah ingin menghapus data lama?");
+      if (!ok) {
+        btnUpload.disabled = false;
+        return;
+      }
+      action = "replace_polygon";
     }
-  } catch(err){
-    hideSpinner();
-    uploadStatus.style.color = 'var(--danger)';
-    uploadStatus.textContent = 'Error: ' + err.message;
+
+    // 3️⃣ KIRIM DATA
+    const form = new FormData();
+    form.append("action", action);
+    form.append("nama_file", polygonFileName);
+    form.append("nama_jalan", nama_jalan);
+    form.append(
+      "data_koordinat",
+      parsedCoords.map(p => `${p[0]},${p[1]}`).join(" ")
+    );
+
+    uploadStatus.textContent = "Mengirim...";
+    const resp = await fetch(API_URL, { method: "POST", body: form });
+    const data = await resp.json();
+
+    if (!data.success) throw new Error(data.error || "Gagal");
+
+    uploadStatus.textContent = "Upload berhasil";
+    uploadStatus.style.color = "green";
+
+    // RESET
+    namaJalanInput.value = "";
+    kmlInput.value = "";
+    coordsText.textContent = "Belum ada file.";
+    parsedCoords = [];
+
+  } catch (err) {
+    uploadStatus.textContent = "Error: " + err.message;
+    uploadStatus.style.color = "red";
+  } finally {
+    btnUpload.disabled = false;
   }
 });
-
 
 // ---- View flow ----
 let namaJalanCache = null;
