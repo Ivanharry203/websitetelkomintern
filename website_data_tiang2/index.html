@@ -10,12 +10,6 @@
 <body>
   <header class="topbar">
     <div class="brand-container">
-      <a href="https://ivanharry203.github.io/websitetelkomintern/web_mark_kordinat/dashboard.html" class="back-btn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Kembali
-      </a>
       <div class="brand">Polygon Manager</div>
     </div>
     <nav class="nav">
@@ -25,7 +19,6 @@
   </header>
 
   <main class="container">
-    <!-- Upload Card -->
     <section id="card-upload" class="card">
       <h2>Upload Polygon</h2>
 
@@ -42,7 +35,7 @@
 
         <div class="actions">
           <button id="btnUpload" class="btn" disabled>Upload ke Spreadsheet</button>
-          <a id="btnOpenSheet" class="btn link" href="#" target="_blank">Lihat Spreadsheet</a>
+          <a id="btnOpenSheet" class="btn link" href="https://docs.google.com/spreadsheets/d/1vYrvhJ6zov19xtEvN9do8Fat_LHa5_FpzBzmipTs4eI/edit?usp=sharing" target="_blank">Lihat Spreadsheet</a>
         </div>
       </div>
 
@@ -73,7 +66,23 @@
       <button id="btnDownloadKml" class="btn" style="margin-top:10px;" disabled>Download KML</button>
     </section>
   </main>
-  
+
+  <!-- Popup Konfirmasi -->
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>Nama Jalan Sudah Ada</h3>
+      <p>
+        Nama jalan <b id="modalNamaJalan"></b> sudah ada di data.<br>
+        Apakah ingin melanjutkan penghapusan <b>menggantian data</b>?
+      </p>
+
+      <div class="modal-actions">
+        <button id="btnCancelReplace" class="btn-secondary">Tidak</button>
+        <button id="btnConfirmReplace" class="btn-danger">Ya</button>
+      </div>
+    </div>
+  </div>
+
 
   <footer class="footer">
     <small>© Magang Industri 2025 UNTIDAR</small>
